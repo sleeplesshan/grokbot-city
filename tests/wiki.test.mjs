@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createStore} from '../server/domain.mjs';
-import {wikiIndex,wikiLinks} from '../server/wiki.mjs';
+import {createStore} from '../server/domain/store.mjs';
+import {wikiIndex,wikiLinks} from '../server/domain/wiki.mjs';
 import {stepDemo} from './helpers/demo.mjs';
 const bot={kind:'bot',id:'bot-0'};
 test('wiki links exclude fenced, indented, inline and escaped code examples',()=>{

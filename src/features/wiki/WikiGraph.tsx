@@ -1,6 +1,6 @@
 import {useMemo,useRef,useState} from 'react';
 import {Maximize2,Minus,Plus,Focus} from 'lucide-react';
-import type {WikiPage} from './wiki-types';
+import type {WikiPage} from './types';
 
 type Point={x:number;y:number};
 function seed(id:string){let n=0;for(const c of id)n=(n*31+c.charCodeAt(0))>>>0;return n}

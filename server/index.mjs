@@ -10,8 +10,8 @@ import {
 import { resolve, extname, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { randomBytes, timingSafeEqual } from "node:crypto";
-import { createStore, AppError } from "./domain.mjs";
-import {wikiIndex,ensureWiki} from './wiki.mjs';
+import { createStore, AppError } from "./domain/store.mjs";
+import {wikiIndex,ensureWiki} from './domain/wiki.mjs';
 const root = resolve(fileURLToPath(new URL("..", import.meta.url))),
   data = resolve(root, "data");
 mkdirSync(data, { recursive: true });

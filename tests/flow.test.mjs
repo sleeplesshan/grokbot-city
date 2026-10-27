@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createStore} from '../server/domain.mjs';
+import {createStore} from '../server/domain/store.mjs';
 import {seedDemo,stepDemo} from './helpers/demo.mjs';
 const main={kind:'bot',id:'bot-0'},worker={kind:'bot',id:'bot-1'};
 const nodes=[{id:'research',title:'Research',description:'Gather facts',botId:'bot-1'},{id:'build',title:'Build',description:'Implement',botId:'bot-2'}];

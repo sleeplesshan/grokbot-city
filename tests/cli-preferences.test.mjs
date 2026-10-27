@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createStore} from '../server/domain.mjs';
+import {createStore} from '../server/domain/store.mjs';
 function setup(t){const store=createStore(':memory:');t.after(()=>store.close());return store;}
 function preference(s,id,tool,usage){return s.command('bot.cli',{id,expectedVersion:s.read().bots.find(b=>b.id===id).version,tool,usage}).result;}
 function toggle(s,enabled){return s.command('bot.cliAll',{id:'bot-0',expectedRevision:s.read().revision,enabled}).result;}

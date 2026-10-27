@@ -1,6 +1,7 @@
+import './wiki.css';
 import {useEffect,useState,type ReactNode} from 'react';
 import {BookOpen,Network,Search,ArrowUpRight,FileText,Download,ArrowLeft,Plus,Send,Link2,Check,Clock,AlertCircle,X} from 'lucide-react';
-import type {WikiData,WikiPage} from './wiki-types';
+import type {WikiData,WikiPage} from './types';
 import WikiGraph from './WikiGraph';
 
 export function downloadWiki(name:string,text:string){const url=URL.createObjectURL(new Blob([text],{type:'text/markdown;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}

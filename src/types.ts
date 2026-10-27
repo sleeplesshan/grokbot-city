@@ -1,4 +1,4 @@
-import type {WikiData} from './wiki-types';
+import type {WikiData} from './features/wiki/types';
 export type Status = "waiting" | "active" | "done";
 export type Bot = {
   cliApplyAll?: boolean;
