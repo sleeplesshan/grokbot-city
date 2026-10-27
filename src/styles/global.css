@@ -2351,8 +2351,14 @@ html{scroll-padding-top:100px}
 .global-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));flex:1;min-width:0;max-width:820px}.global-metrics .metric{padding:8px 16px}.global-metrics .metric>div{font-size:10px;white-space:nowrap}.global-metrics .metric>strong{font-size:23px;margin-top:5px;line-height:1}.global-metrics .metric-caption{display:block;font-size:6px;letter-spacing:.7px;margin:4px 0 0}.shell>header{height:90px;gap:20px;padding:0 28px}.bot-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}@media(max-width:1100px){.shell>header{padding:0 18px;gap:12px}.global-metrics .metric{padding:8px}.header-actions{gap:12px}.global-metrics .metric>div{font-size:9px}}@media(max-width:700px){.shell>header{height:auto;min-height:120px;flex-wrap:wrap;padding:12px 16px;gap:10px}.global-metrics{order:3;flex:0 0 100%;max-width:none}.global-metrics .metric{padding:5px 6px}.global-metrics .metric>div{font-size:8px;letter-spacing:-.3px}.global-metrics .metric>strong{font-size:22px}.global-metrics .metric-caption{font-size:5px;letter-spacing:0}.header-actions{margin-left:auto}.bot-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}.bot-metrics .metric{padding:15px 9px}.bot-metrics .metric-caption{display:block;margin:6px 0 0;font-size:6px}.bot-metrics .metric>div{font-size:10px}}
 
 /* An expandable roster scrolls independently from main bot and navigation. */
+.sidebar{height:100vh;height:100dvh;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}
 .sidebar > :not(.bot-nav){flex-shrink:0}
-.bot-nav{min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#373d43 transparent}
+.bot-nav{flex:1 1 0;min-height:120px;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-gutter:stable;scrollbar-width:thin;scrollbar-color:#637269 #171b19;padding-right:3px}
+.bot-nav::-webkit-scrollbar{width:7px}
+.bot-nav::-webkit-scrollbar-track{background:#171b19;border-radius:8px}
+.bot-nav::-webkit-scrollbar-thumb{background:#637269;border:1px solid #171b19;border-radius:8px}
+.bot-nav::-webkit-scrollbar-thumb:hover{background:#89a193}
+.sidebar-bottom{padding-top:16px}
 .bot-nav .bot-link{flex-shrink:0}
 .bot-search{display:flex;align-items:center;gap:8px;margin:0 4px 12px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;color:var(--muted)}
 .bot-search:focus-within{border-color:#6b9987}
