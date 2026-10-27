@@ -64,6 +64,10 @@ result-payload.json에는 markdown을 제외한 나머지 필드를 넣습니다
 
 사용자가 진행 토글을 켜면 `task.dispatch`가 현재 초안을 게시 스냅샷으로 확정하고 변경함에 `dispatchId`를 생성합니다. `stage:"brief"`, `ready:true`인 동안 업무지시서에 남습니다.
 
+채팅으로 명확한 업무 실행 지시를 받은 경우 메인봇이 그 승인 근거를 지시서에 남기고 CLI로 `task.dispatch`를 보낼 수 있습니다. 사용자에게 동일 업무의 토글 클릭을 다시 요구할 필요는 없습니다. 지시서 작성만 요청했거나 실행 의도가 불명확하면 진행 요청을 만들지 않습니다. `task.publish`·`task.dispatch`는 메인봇 전용 명령이 아니며, 접수(`task.ack`)가 메인봇 전용입니다. 원격 팀원은 실제 연결 가능한 전달 경로로 메인봇에게 기록을 요청하고 저장 결과를 돌려받습니다.
+
+For work explicitly authorized in chat, the main bot can record that authorization in the brief and issue `task.dispatch` through the CLI; a second manual toggle is unnecessary. Drafting alone does not authorize execution. `task.publish` and `task.dispatch` are not main-bot-only commands; acceptance through `task.ack` is. Remote workers must use an available communication path to the recording bot and receive the saved IDs and status, rather than treating a sent request as a successful write.
+
 ```json
 {
   "id": "TASK_ID",
