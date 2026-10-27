@@ -74,7 +74,7 @@ node scripts/bot.mjs wiki.index
 
 ### 연결 문제와 안전한 운영
 
-변경이 대기 중이면 메인봇에게 sync를 실행하도록 요청합니다. 앱은 봇을 자동으로 깨우지 않습니다. 409는 최신 항목·버전을 다시 읽고 조정하며 오래된 실행 요청을 임의로 재사용하지 않습니다. 403은 봇 등록·권한·작업 범위를, 400은 입력 형식·크기·비밀 패턴을 확인합니다. 전체 state나 정기 모델 폴링 대신 필요한 조회만 사용하세요. 키·운영 DB는 공개 저장소에 올리지 않습니다. 현재 인증은 공유 키와 봇 ID 방식입니다. 서버 운영·백업·복구는 README의 기존 스크립트를 따릅니다. 시연 모드는 없습니다.
+변경이 대기 중이면 메인봇에게 sync를 실행하도록 요청합니다. 앱은 봇을 자동으로 깨우지 않습니다. 409는 최신 항목·버전을 다시 읽고 조정하며 오래된 실행 요청을 임의로 재사용하지 않습니다. 403은 봇 등록·권한·작업 범위를, 400은 입력 형식·크기·비밀 패턴을 확인합니다. 전체 state나 정기 모델 폴링 대신 필요한 조회만 사용하세요. 키·운영 DB는 공개 저장소에 올리지 않습니다. 현재 인증은 공유 키와 봇 ID 방식입니다. 서버 운영·백업·복구는 docs/MAINTENANCE.md의 스크립트를 따릅니다. 시연 모드는 없습니다.
 
 ## English
 
@@ -146,7 +146,7 @@ Bots follow current CLI preferences and task permissions. Give Codex the goal, i
 
 ### Troubleshooting and safe operation
 
-If changes remain pending, ask the main bot to run sync; the app does not wake it automatically. For 409, reload the relevant item/version and reconcile; do not revive stale execution requests. For 403, check registration, permission and assignment; for 400, check input, size and secret detection. Prefer targeted reads over full state or scheduled model polling. Keep keys and operational databases out of public Git. Authentication uses a shared key plus bot ID. Follow README scripts for server operation, backups and recovery. There is no demo mode.
+If changes remain pending, ask the main bot to run sync; the app does not wake it automatically. For 409, reload the relevant item/version and reconcile; do not revive stale execution requests. For 403, check registration, permission and assignment; for 400, check input, size and secret detection. Prefer targeted reads over full state or scheduled model polling. Keep keys and operational databases out of public Git. Authentication uses a shared key plus bot ID. Follow docs/MAINTENANCE.md for server operation, backups and recovery. There is no demo mode.
 
 ## Reference / 상세 규약
 
@@ -156,4 +156,5 @@ If changes remain pending, ask the main bot to run sync; the app does not wake i
 - [Flow / 업무 흐름](GROKBOT_FLOW.md)
 - [Wiki / 위키](GROKBOT_WIKI.md)
 - [Reports / 결과서](RETROSPECTIVE_TEMPLATE.md)
-- [Install, backup and recovery / 설치·백업·복구](../README.md)
+- [Installation / 설치](../README.md)
+- [Server operation, backup and recovery / 서버 운영·백업·복구](MAINTENANCE.md)
