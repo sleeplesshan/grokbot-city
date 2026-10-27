@@ -280,7 +280,7 @@ const strings = {
 };
 type Key = keyof typeof strings.ko;
 function Avatar({ bot, size = "small" }: { bot: Bot; size?: string }) {
-  const i = Number(bot.id.split("-")[1]);
+  const i = Number(bot.id.split("-")[1]) % 8;
   return (
     <div
       aria-hidden="true"
@@ -319,6 +319,7 @@ export default function App() {
     [state, setState] = useState<State | null>(null),
     [tab, setTabRaw] = useState<"status" | "tasks" | "monitor" | "library" | "trash">("status"),
     [selected, setSelected] = useState("bot-0"),
+    [botQuery, setBotQuery] = useState(""),
     [mobile, setMobile] = useState(false),
     [filter, setFilter] = useState("all"),
     [libraryView,setLibraryView]=useState<'briefs'|'wiki'|'map'>('briefs'),
@@ -447,7 +448,7 @@ export default function App() {
     const b = state?.bots.find((x) => x.id === id);
     if (!b) return id;
     if (lang === "en" && b.name === "메인봇") return "Main bot";
-    if (lang === "en" && /^그록봇 \d$/.test(b.name))
+    if (lang === "en" && /^그록봇 \d+$/.test(b.name))
       return `Grokbot ${id.split("-")[1]}`;
     return b.name;
   };
@@ -797,8 +798,9 @@ export default function App() {
           {t("bots")}
           <span>{String(state?.bots.filter(b=>b.id!=="bot-0").length || 0).padStart(2,"0")}</span>
         </div>
+        <label className="bot-search"><Search size={14}/><input type="search" value={botQuery} onChange={e=>setBotQuery(e.target.value)} placeholder={lang==="ko"?"봇 검색":"Find a bot"} aria-label={lang==="ko"?"이름, 역할, ID로 봇 검색":"Find bots by name, role or ID"}/></label>
         <nav className="bot-nav" aria-label={t("bots")}>
-          {state?.bots.filter(b=>b.id!=="bot-0").map((b) => (
+          {state?.bots.filter(b=>b.id!=="bot-0" && `${botName(b.id)} ${b.role} ${b.id}`.toLocaleLowerCase().includes(botQuery.trim().toLocaleLowerCase())).map((b) => (
             <button
               key={b.id}
               className={`bot-link ${tab === "status" && selected === b.id ? "selected" : ""}`}
@@ -815,7 +817,7 @@ export default function App() {
                 <small>
                   {b.id === "bot-0"
                     ? "MAIN BOT"
-                    : `AGENT / 0${b.id.split("-")[1]}`}
+                    : `AGENT / ${b.id.split("-")[1].padStart(2,"0")}`}
                 </small>
               </span>
               {b.id === "bot-0" ? (
@@ -825,6 +827,7 @@ export default function App() {
               ) : null}
             </button>
           ))}
+          {state && !state.bots.some(b=>b.id!=="bot-0" && `${botName(b.id)} ${b.role} ${b.id}`.toLocaleLowerCase().includes(botQuery.trim().toLocaleLowerCase())) && <p className="bot-search-empty">{lang==="ko"?"일치하는 봇이 없습니다":"No matching bots"}</p>}
         </nav>
         <div className="sidebar-bottom">
           {(["library","trash"] as const).map(key=><button key={key} className={tab===key ? "storage-selected" : ""} onClick={()=>{setTab(key);setFilter("all");setTaskOpen(null);setMobile(false)}}>{key==="library"?<BookOpen size={17}/>:<Trash2 size={17}/>} {t(key)} <span className="storage-count">{tasks.filter(x=>x.location===key).length}</span></button>)}
@@ -1036,7 +1039,7 @@ export default function App() {
                       <span className="bot-id">
                         {bot.id === "bot-0"
                           ? "MAIN / 00"
-                          : `AGENT / 0${bot.id.split("-")[1]}`}
+                          : `AGENT / ${bot.id.split("-")[1].padStart(2,"0")}`}
                       </span>
                     </div>
                     <div className="bot-identity">

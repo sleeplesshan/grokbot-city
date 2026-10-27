@@ -10,7 +10,7 @@ const option = (flag, fallback) => {
 };
 if (action === "help") {
   console.log(
-    "node scripts/bot.mjs [sync|inbox|state|task.get|bot.get|bot.list|ACTION] [--id ID] [--file payload.json] [--markdown-file retrospective.md] [--bot bot-0] [--workspace live] [--full]\nDefault: sync (compact actionable inbox and task summaries). task.get/bot.get require --id. retrospective aliases task.retrospective; --markdown-file merges Markdown into JSON payload. Wiki reads: wiki.index, wiki.source/wiki.page/wiki.job --id ID. Wiki writes: wiki.job.start/retry/fail, wiki.stage, wiki.commit --file payload.json. Writes return compact IDs/versions/current run; --full retains complete response. Updates are for work start, milestones, and finish, not timed polling. See docs/GROKBOT_PROTOCOL.md.",
+    "node scripts/bot.mjs [sync|inbox|state|task.get|bot.get|bot.list|ACTION] [--id ID] [--file payload.json] [--markdown-file retrospective.md] [--bot bot-0] [--workspace live] [--full]\nDefault: sync (compact actionable inbox and task summaries). task.get/bot.get require --id. retrospective aliases task.retrospective; --markdown-file merges Markdown into JSON payload. Wiki reads: wiki.index, wiki.source/wiki.page/wiki.job --id ID. Bot creation: bot.create --file payload.json (main bot only; name and requestId required). Wiki writes: wiki.job.start/retry/fail, wiki.stage, wiki.commit --file payload.json. Writes return compact IDs/versions/current run; --full retains complete response. Updates are for work start, milestones, and finish, not timed polling. See docs/GROKBOT_PROTOCOL.md.",
   );
   process.exit(0);
 }

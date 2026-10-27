@@ -4,7 +4,7 @@
 
 Built-in imagegen 사용. 2026-10-26 생성. UI 글자는 이미지에 넣지 않고 HTML로 렌더링합니다.
 
-- `public/assets/bot-roster.png`: 4×2 초상화 시트. 첫 7개 타일을 기본 봇 아바타로 사용합니다. 8번째는 예비입니다. CSS background-position으로 사용하며 원본 이미지를 변경하지 않았습니다.
+- `public/assets/bot-roster.png`: 4×2 초상화 시트. 초기 7개 슬롯에는 첫 7개 타일을 사용하며 추가 봇은 8개 타일을 순환해 기본 아바타로 사용합니다. 실제 사진을 등록하면 해당 이미지로 대체합니다. CSS background-position으로 사용하며 원본 이미지를 변경하지 않았습니다.
 - `public/assets/parchment.png`: 두루마리 지시서의 종이 질감. UI에서 본문을 그 위에 렌더링합니다.
 
 ## Avatar prompt

@@ -265,3 +265,32 @@ CLI example: save activity JSON to a file, then `node scripts/bot.mjs bot.activi
 ## 독립 업무 위키
 
 업무 도서관의 업무지시서 / 업무 wiki / 업무 wiki MAP을 제공합니다. 보관 시 원자료를 독립 저장하고, 메인봇이 변경함의 `kind:wiki`를 읽어 raw → ingest → lint → publish 순서로 지식을 연결합니다. 업무 복원·삭제·휴지통 비우기는 위키·원자료에 영향을 주지 않습니다. 위키 추가·수정·삭제는 사용자 요청을 메인봇이 처리합니다. 정확한 CLI payload와 내용 검토 절차는 [GROKBOT_WIKI.md](GROKBOT_WIKI.md)를 따르세요.
+
+
+<a id="botcreate"></a>
+## bot.create — 실제 봇 추가
+
+초기 7개는 시작용 슬롯이며 등록 봇 수의 고정 한도가 아닙니다. 이 명령은 인증된 메인봇(`--bot bot-0`)만 사용할 수 있습니다. 기존 DB를 초기화하거나 기존 ID를 변경하지 않습니다. 먼저 `bot.list`로 기존 매핑과 빈 슬롯을 확인하세요.
+
+UTF-8 `new-bot.json` 예제 (실제 봇 정보로 교체):
+
+```json
+{
+  "requestId": "register-research-agent-2026-10-27",
+  "name": "리서치봇",
+  "role": "자료 조사와 출처 검증",
+  "avatar": ""
+}
+```
+
+```powershell
+node scripts/bot.mjs bot.create --file new-bot.json --bot bot-0
+```
+
+- 필수: `requestId`(공백이 아닌 고유 문자열, 최대 150자), `name`(공백이 아닌 이름, 최대 300자).
+- 선택: `role`(최대 3,000자), `avatar`(최대 2,048자, 빈 문자열 또는 `/assets/` 하위 로컬 경로).
+- `id`는 입력하지 않습니다. 현재 최대 번호 다음의 `bot-N`을 트랜잭션 안에서 발급합니다. 예를 들어 기존 `bot-0`~`bot-6`이면 `bot-7`입니다. 응답의 `result.id`와 `result.version`을 다음 명령에 사용하세요.
+- 같은 `requestId`와 동일 payload로 재시도하면 기존 결과를 반환합니다. 다른 내용으로 재사용하면 409 오류입니다. 서로 다른 생성 요청에는 다른 ID를 사용하세요. 이름이 같아도 별도 봇을 만들 수 있으므로 재실행 전 대응표와 `bot.list`를 확인하세요.
+- 새 봇의 지침과 적용 이력은 비어 있습니다. `instruction.publish` 후 실제 반영한 버전만 `instruction.ack` 하세요.
+- 메인봇의 `cliApplyAll`이 켜져 있으면 CLI 선호도를 상속합니다. 기본값과 다른 선호도를 상속하면 지침 버전 1의 확인 요청이 생깁니다. 자동 적용 확인은 하지 않습니다.
+- 화면은 기존 SSE로 새 봇과 개수를 반영합니다. 추가 봇 목록은 검색·스크롤할 수 있습니다. 팀 업무의 Boss 외 최대 5명 규칙은 바뀌지 않습니다.

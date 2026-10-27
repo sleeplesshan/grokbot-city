@@ -217,6 +217,11 @@ test("isolated HTTP security and workspace boundaries", async (t) => {
     const configPath=join(dir,'data/config.json');const config=JSON.parse(readFileSync(configPath,'utf8'));config.port=port;writeFileSync(configPath,JSON.stringify(config));
     const cli=args=>new Promise((resolve,reject)=>{const proc=spawn(process.execPath,['scripts/bot.mjs',...args],{cwd:dir,windowsHide:true});let out='',err='';proc.stdout.on('data',c=>out+=c);proc.stderr.on('data',c=>err+=c);proc.on('error',reject);proc.on('exit',code=>code?reject(new Error(err)):resolve(JSON.parse(out)));});
     const sync=await cli([]);assert.ok(Array.isArray(sync.tasks));assert.equal(sync.history,undefined);
+    writeFileSync(join(dir,'create-bot.json'),JSON.stringify({name:'CLI-created bot',requestId:'cli-create-bot'}));
+    const createdBot=await cli(['bot.create','--file','create-bot.json']);assert.equal(createdBot.result.id,'bot-7');
+    assert.deepEqual(await cli(['bot.create','--file','create-bot.json']),createdBot);
+    await assert.rejects(cli(['bot.create','--file','create-bot.json','--bot','bot-1']),/409|403/);
+    const freshBot=await cli(['bot.get','--id',createdBot.result.id]);assert.equal(freshBot.bot.name,'CLI-created bot');
     await assert.rejects(cli(['sync','--workspace','demo']),/Only the live workspace/);
     writeFileSync(join(dir,'payload.json'),JSON.stringify({title:'CLI task',type:'solo',boss:'bot-0',description:'Long body'}));
     const compact=await cli(['task.publish','--file','payload.json']);assert.equal(compact.result.draft,undefined);assert.equal(compact.result.publishedVersion,1);assert.ok(compact.result.id);

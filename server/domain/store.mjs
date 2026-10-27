@@ -327,6 +327,23 @@ export function createStore(path) {
           }
           result={id:"trash",count:ids.size};break;
         }
+        case "bot.create": {
+          if(actor.kind!=="bot"||actor.id!=="bot-0") fail("Only the main bot may create bots",403);
+          if(!str(p.requestId,150).trim()) fail("requestId is required");
+          if('id' in p) fail("Bot IDs are allocated by the server");
+          const name=required(p.name),role=p.role===undefined?'':str(p.role,3000),avatar=p.avatar===undefined?'':str(p.avatar,2048);
+          if(avatar&&(!/^\/assets\/[\w./-]+$/.test(avatar)||avatar.includes('..'))) fail("Avatar must be a local /assets/ path");
+          const suffix=s.bots.reduce((max,b)=>/^bot-\d+$/.test(b.id)?Math.max(max,Number(b.id.slice(4))):max,0)+1;
+          if(!Number.isSafeInteger(suffix)) fail("Bot identifier range exhausted",409);
+          const main=bot('bot-0');
+          const b={id:`bot-${suffix}`,name,role,avatar,instructions:'',draft:'',instructionVersion:0,appliedVersion:0,appliedAt:null,appliedSource:null,lastReportAt:null,version:0,cliUsage:main.cliApplyAll?{...main.cliUsage}:{codex:'never',claudeCode:'never',other:'never'}};
+          s.bots.push(b);
+          if(Object.values(b.cliUsage).some(value=>value!=='never')) {
+            b.instructionVersion=1;
+            event('instruction',b.id,1,'Hey Grokbot, your information has been updated!');
+          }
+          result=b;break;
+        }
         case "bot.update": {
           const b = bot(p.id);
           check(b);

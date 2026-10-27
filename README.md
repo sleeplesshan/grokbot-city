@@ -10,7 +10,7 @@ The dashboard does not automatically connect to Grok or run an LLM. Your main bo
 
 ## Features
 
-- Main bot and six additional bot slots, versioned instructions and acknowledgements.
+- One main bot and an expandable bot roster (seven initial slots), versioned instructions and acknowledgements.
 - Per-bot CLI preferences with a main-bot shared setting.
 - Category task boards, individual/team assignment, explicit dispatch and bot acceptance.
 - Monitoring by waiting / active / completed status, subtasks and routine run history.
@@ -47,6 +47,8 @@ Give the bot these files:
 node scripts/bot.mjs sync
 node scripts/bot.mjs help
 ```
+
+The main bot can add profiles with `bot.create`; existing databases and bot IDs are preserved. See the [creation contract](docs/GROKBOT_PROTOCOL.md#botcreate). There is no fixed roster-size limit; each team task still allows up to five members besides its Boss.
 
 CLI writes use JSON files, expected versions and request tokens. Keep `data/bot.key` private. The dashboard does not install or execute external CLIs when preferences change.
 
@@ -122,7 +124,7 @@ Project source: [MIT](LICENSE). Bundled fonts and dependencies retain their own 
 
 ### 주요 기능
 
-- 메인봇과 추가 봇 6개, 지침 버전 관리와 적용 확인.
+- 메인봇과 필요한 만큼 확장하는 봇 목록(초기 7개 슬롯), 지침 버전 관리와 적용 확인.
 - 봇별 CLI 활용 설정 및 메인봇의 전체 적용.
 - 카테고리별 업무지시서 보드, 개인·팀 배정, 명시적인 진행 요청과 봇 접수.
 - 대기중·진행중·완료 모니터링, 세부 작업과 루틴 회차 이력.
@@ -159,6 +161,8 @@ npm start
 node scripts/bot.mjs sync
 node scripts/bot.mjs help
 ```
+
+메인봇은 `bot.create`로 봇을 추가할 수 있습니다. 기존 DB와 봇 ID를 보존하며, 정확한 입력은 [추가 명령 규약](docs/GROKBOT_PROTOCOL.md#botcreate)을 따릅니다. 등록 봇 수에 고정 제한은 없고, 개별 팀 업무의 팀원은 Boss 외 최대 5명입니다.
 
 CLI 변경 요청은 JSON 파일, 예상 버전, 요청 토큰을 사용합니다. `data/bot.key`는 비공개로 유지합니다. CLI 활용 설정을 바꾸어도 대시보드가 외부 CLI를 설치하거나 실행하지는 않습니다.
 
