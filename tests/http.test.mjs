@@ -217,6 +217,17 @@ test("isolated HTTP security and workspace boundaries", async (t) => {
     const configPath=join(dir,'data/config.json');const config=JSON.parse(readFileSync(configPath,'utf8'));config.port=port;writeFileSync(configPath,JSON.stringify(config));
     const cli=args=>new Promise((resolve,reject)=>{const proc=spawn(process.execPath,['scripts/bot.mjs',...args],{cwd:dir,windowsHide:true});let out='',err='';proc.stdout.on('data',c=>out+=c);proc.stderr.on('data',c=>err+=c);proc.on('error',reject);proc.on('exit',code=>code?reject(new Error(err)):resolve(JSON.parse(out)));});
     const sync=await cli([]);assert.ok(Array.isArray(sync.tasks));assert.equal(sync.history,undefined);
+    writeFileSync(join(dir,'source-note.json'),JSON.stringify({requestId:'cli-source-note',title:'CLI observation',text:'Independent reusable note',tags:['testing']}));
+    const note=await cli(['wiki.source.add','--file','source-note.json','--bot','bot-2']);assert.equal(note.result.status,'pending');assert.equal(note.result.duplicate,false);assert.ok(note.result.jobId);assert.equal(note.result.markdown,undefined);
+    assert.deepEqual(await cli(['wiki.source.add','--file','source-note.json','--bot','bot-2']),note);
+    const raw=await cli(['wiki.source','--id',note.result.id]);assert.equal(raw.source.botId,'bot-2');assert.equal(raw.source.markdown,'Independent reusable note');
+    writeFileSync(join(dir,'source-secret.json'),JSON.stringify({requestId:'cli-secret-note',title:'Rejected',text:'API_KEY=do-not-persist-this'}));
+    await assert.rejects(cli(['wiki.source.add','--file','source-secret.json']),/Potential credential/);
+    await assert.rejects(cli(['wiki.source.add','--file','source-note.json','--bot','bot-missing']),/403/);
+    for(const action of ['wiki.source.edit','wiki.source.delete'])await assert.rejects(cli([action,'--file','source-note.json']),/403/);
+    writeFileSync(join(dir,'source-malformed.json'),'api_key=synthetic-secret-never-print');
+    const malformed=await new Promise((resolve,reject)=>{const proc=spawn(process.execPath,['scripts/bot.mjs','wiki.source.add','--file','source-malformed.json'],{cwd:dir,windowsHide:true});let out='',err='';proc.stdout.on('data',c=>out+=c);proc.stderr.on('data',c=>err+=c);proc.on('error',reject);proc.on('exit',code=>resolve({code,out,err}));});
+    assert.equal(malformed.code,1);assert.equal(malformed.out,'');assert.match(malformed.err,/Invalid payload JSON/);assert.ok(!malformed.err.includes('synthetic-secret'));assert.ok(!malformed.err.includes('api_key'));
     writeFileSync(join(dir,'create-bot.json'),JSON.stringify({name:'CLI-created bot',requestId:'cli-create-bot'}));
     const createdBot=await cli(['bot.create','--file','create-bot.json']);assert.equal(createdBot.result.id,'bot-7');
     assert.deepEqual(await cli(['bot.create','--file','create-bot.json']),createdBot);

@@ -6,6 +6,7 @@ Start with the [project README](../README.md) for installation and operation. Gi
 
 | Document / 문서 | Purpose / 용도 |
 | --- | --- |
+| [Operating guide / 운영 가이드](OPERATING_GUIDE.md) | Copyable first-run prompt and user workflows / 최초 운영 복사 프롬프트·사용 흐름 |
 | [Operating context / 운영 맥락](GROKBOT_CONTEXT.md) | Roles, lifecycle and reporting / 역할·업무 흐름·보고 원칙 |
 | [Migration / 마이그레이션](GROKBOT_MIGRATION.md) | Real profiles and ongoing tasks / 실제 프로필과 진행 업무 반영 |
 | [Protocol / 프로토콜](GROKBOT_PROTOCOL.md) | CLI commands and payloads / CLI 명령과 입력 형식 |

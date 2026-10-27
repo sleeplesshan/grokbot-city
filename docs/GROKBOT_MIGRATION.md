@@ -19,7 +19,7 @@ Grokbot City를 실제 운영 정보로 채워 주세요. 먼저 `docs/GROKBOT_C
 
 ## 2. 실제 프로필과 지침 반영
 
-`bot.update`에 `id`, 최신 `expectedVersion`, 실제 `name`, `role`, `avatar`를 넣습니다. 사진은 실제 봇에 설정된 이미지를 사용하고 이미지 생성으로 대체하지 않습니다. 파일을 `public/assets/` 아래 고유한 이름으로 저장하고 `avatar`에는 `/assets/파일명`을 넣습니다. 외부 URL이나 인증 정보를 저장하지 않습니다. 파일 추가 후 `npm run build`로 서비스 자산에 반영합니다. 사진 원본이 없으면 기본 아바타를 유지하고 누락 사항을 보고합니다.
+`bot.update`에 `id`, 최신 `expectedVersion`, 실제 `name`, `role`, `avatar`를 넣습니다. 사진은 실제 봇에 설정된 이미지를 사용하고 이미지 생성으로 대체하지 않습니다. 파일을 Git에서 제외된 `public/assets/local/` 아래 고유한 이름으로 저장하고 `avatar`에는 `/assets/local/파일명`을 넣습니다. 외부 URL이나 인증 정보를 저장하지 않습니다. 파일 추가 후 `npm run build`로 서비스 자산에 반영합니다. 사진 원본이 없으면 기본 아바타를 유지하고 누락 사항을 보고합니다.
 
 실제 운영 지침은 `instruction.publish`로 게시하고, 각 봇이 실제 반영한 버전만 `instruction.ack` 합니다. CLI 선호도와 전체 적용 정책은 사용자 설정을 유지하며 이관을 이유로 임의 변경하지 않습니다. 작업마다 응답의 새 버전을 사용합니다.
 

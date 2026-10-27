@@ -10,7 +10,7 @@ const option = (flag, fallback) => {
 };
 if (action === "help") {
   console.log(
-    "node scripts/bot.mjs [sync|inbox|state|task.get|bot.get|bot.list|ACTION] [--id ID] [--file payload.json] [--markdown-file retrospective.md] [--bot bot-0] [--workspace live] [--full]\nDefault: sync (compact actionable inbox and task summaries). task.get/bot.get require --id. retrospective aliases task.retrospective; --markdown-file merges Markdown into JSON payload. Wiki reads: wiki.index, wiki.source/wiki.page/wiki.job --id ID. Bot creation: bot.create --file payload.json (main bot only; name and requestId required). Wiki writes: wiki.job.start/retry/fail, wiki.stage, wiki.commit --file payload.json. Writes return compact IDs/versions/current run; --full retains complete response. Updates are for work start, milestones, and finish, not timed polling. See docs/GROKBOT_PROTOCOL.md.",
+    "node scripts/bot.mjs [sync|inbox|state|task.get|bot.get|bot.list|ACTION] [--id ID] [--file payload.json] [--markdown-file retrospective.md] [--bot bot-0] [--workspace live] [--full]\nDefault: sync (compact actionable inbox and task summaries). task.get/bot.get require --id. retrospective aliases task.retrospective; --markdown-file merges Markdown into JSON payload. Wiki reads: wiki.index, wiki.source/wiki.page/wiki.job --id ID. Bot creation: bot.create --file payload.json (main bot only; name and requestId required). Wiki raw notes: wiki.source.add --file payload.json (registered bots; requestId/title/text required; optional tags/origin; no credentials). Wiki writes: wiki.job.start/retry/fail, wiki.stage, wiki.commit --file payload.json. Writes return compact IDs/versions/current run; --full retains complete response. Updates are for work start, milestones, and finish, not timed polling. See docs/GROKBOT_PROTOCOL.md.",
   );
   process.exit(0);
 }
@@ -36,7 +36,11 @@ try {
   if (!read && !file) throw new Error("--file payload.json is required");
   const id=option('--id');if((['bot.get','task.get'].includes(action)||(wikiRead&&action!=='wiki.index'))&&!id) throw new Error('--id is required');
   const endpoint=wikiRead?`wiki/${action.split('.')[1]}${id?'?id='+encodeURIComponent(id):''}`:action==='state'?'state':['sync','inbox'].includes(action)?'sync':action==='task.get'?`task?id=${encodeURIComponent(id)}`:action==='bot.get'?`bots?id=${encodeURIComponent(id)}`:action==='bot.list'?'bots':'command';
-  const payload=read?null:JSON.parse(readFileSync(resolve(file),'utf8').replace(/^\uFEFF/,''));
+  let payload=null;
+  if(!read){
+    const input=readFileSync(resolve(file),'utf8').replace(/^\uFEFF/,'');
+    try {payload=JSON.parse(input);} catch {throw new Error('Invalid payload JSON');}
+  }
   if(!read&&option('--markdown-file')) payload.markdown=readFileSync(resolve(option('--markdown-file')),'utf8').replace(/^\uFEFF/,'');
   const response = await fetch(
     `http://127.0.0.1:${config.port}/api/${endpoint}`,
@@ -58,7 +62,7 @@ try {
   delete value.csrf;
   if(!read&&!args.includes('--full')) {
     const r=value.result;
-    if(action.startsWith('wiki.'))value.result={id:r.id,status:r.status,version:r.version,attemptId:r.attemptId,findings:r.findings,note:r.note,stagedCount:r.staged?.length};
+    if(action.startsWith('wiki.')&&action!=='wiki.source.add')value.result={id:r.id,status:r.status,version:r.version,attemptId:r.attemptId,findings:r.findings,note:r.note,stagedCount:r.staged?.length};
     if(r?.runs) value.result={id:r.id,version:r.version,stage:r.stage,location:r.location,ready:r.ready,dispatchId:r.dispatchId,acceptedVersion:r.acceptedVersion,publishedVersion:r.publishedVersion,retrospectiveRequestId:r.retrospectiveRequestId,retrospectiveReady:!!r.retrospective,flowRequestId:r.flowRequestId,flowVersion:r.flowPlan?.version??null,run:r.runs.length?{id:r.runs.at(-1).id,status:r.runs.at(-1).status,progress:r.runs.at(-1).progress,subtasks:r.runs.at(-1).subtasks.map(s=>({id:s.id,nodeId:s.nodeId,title:s.title,botId:s.botId,status:s.status,progress:s.progress}))}:null};
     if(action==='node.update'&&r?.runs){const run=r.runs.find(x=>x.id===payload.runId);value.result.run={id:run.id,status:run.status,progress:run.progress};value.result.node=run.subtasks.filter(x=>x.nodeId===payload.nodeId).map(x=>({id:x.id,nodeId:x.nodeId,status:x.status,progress:x.progress}))[0];}
     else if(r?.instructionVersion!==undefined) value.result={id:r.id,version:r.version,instructionVersion:r.instructionVersion,appliedVersion:r.appliedVersion,appliedAt:r.appliedAt,cliUsage:r.cliUsage};

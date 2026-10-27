@@ -1,0 +1,11 @@
+.operating-guide{font-size:12px;line-height:1.8;color:#b9c4cb}
+.operating-guide h3,.operating-guide h4{color:#e1ebe5;margin:0 0 10px}
+.operating-guide h3{font-size:15px}.operating-guide h4{font-size:13px}
+.guide-intro{margin-bottom:18px}.guide-handoff{padding:18px;border:1px solid #3a5145;border-radius:10px;background:#111d17;margin-bottom:26px}
+.guide-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.guide-actions{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 5px}
+.guide-copy-status{display:block;min-height:24px;color:#add4bb}
+.guide-handoff textarea{font-size:11px;line-height:1.7;resize:vertical;min-height:180px}
+.guide-section{border-top:1px solid #303a40;padding:18px 0}.guide-section p{margin:0 0 10px}
+.guide-section code{margin:6px 0}.guide-footnote{font-size:11px;overflow-wrap:anywhere;color:#8c9d98}
+@media(max-width:600px){.guide-fields{grid-template-columns:1fr}.guide-handoff{padding:12px}.guide-actions button{width:100%;justify-content:center}}

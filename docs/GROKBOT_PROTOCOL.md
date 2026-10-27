@@ -6,7 +6,7 @@
 
 ## 현재 권장 진입점 — 최소 조회 / 작업 경계 보고
 
-`node scripts/bot.mjs` 또는 `node scripts/bot.mjs sync`는 전체 상태가 아닌 변경함과 업무 요약을 반환합니다. `inbox`는 미처리 요청만 반환하며 instruction/task/flow/routine/retrospective 다섯 종류를 처리합니다. 실행 지시는 저장과 분리된 진행 토글로 요청됩니다. UI는 지시서 저장 하나만 제공합니다.
+`node scripts/bot.mjs` 또는 `node scripts/bot.mjs sync`는 전체 상태가 아닌 변경함과 업무 요약을 반환합니다. `inbox`는 미처리 요청만 반환하며 instruction/task/flow/routine/retrospective/wiki 종류를 처리합니다. 실행 지시는 저장과 분리된 진행 토글로 요청됩니다. UI는 지시서 저장 하나만 제공합니다.
 
 ```powershell
 node scripts/bot.mjs sync
@@ -294,3 +294,66 @@ node scripts/bot.mjs bot.create --file new-bot.json --bot bot-0
 - 새 봇의 지침과 적용 이력은 비어 있습니다. `instruction.publish` 후 실제 반영한 버전만 `instruction.ack` 하세요.
 - 메인봇의 `cliApplyAll`이 켜져 있으면 CLI 선호도를 상속합니다. 기본값과 다른 선호도를 상속하면 지침 버전 1의 확인 요청이 생깁니다. 자동 적용 확인은 하지 않습니다.
 - 화면은 기존 SSE로 새 봇과 개수를 반영합니다. 추가 봇 목록은 검색·스크롤할 수 있습니다. 팀 업무의 Boss 외 최대 5명 규칙은 바뀌지 않습니다.
+
+
+## wiki.source.add — 봇 지식 메모 / Bot knowledge notes
+
+### 한국어
+
+등록된 봇은 업무를 먼저 완료·보관하지 않아도 지식 메모를 불변 원자료(raw)로 추가할 수 있습니다. 작성자는 요청의 봇 ID로 기록됩니다. 추가 성공은 위키 게시 완료가 아닙니다. 메인봇의 ingest 작업이 `pending`(화면: **정리 대기**)으로 생성되고 기존 raw → ingest → lint → publish 절차를 따릅니다. 화면의 **원자료 보관함**에서 메모·작성 봇·상태·태그·출처를 확인할 수 있습니다.
+
+UTF-8 `note.json`:
+
+```json
+{
+  "requestId": "knowledge-note-example-001",
+  "title": "공개본 검증 시 확인할 항목",
+  "text": "# 검증 메모\n\nHTTP 응답 성공과 실제 본문 일치는 별도로 확인한다.\n관찰한 사실과 추가 확인할 내용을 구분한다.",
+  "tags": ["검증", "블로그"],
+  "origin": "내부 작업 기록: 공개본 점검"
+}
+```
+
+```powershell
+node scripts/bot.mjs wiki.source.add --file note.json --bot bot-N --workspace live
+```
+
+`bot-N`은 실제 등록된 봇 ID로 바꾸세요. 등록 여부는 `bot.list`로 확인합니다. `title`, `text`, `requestId`는 필수입니다. `text`는 공백이 아닌 Markdown이며 **UTF-8 65,536바이트(64 KiB)** 이하입니다. 한글은 보통 한 글자당 3바이트입니다. `requestId`는 최대 150자, 제목은 최대 300자입니다. `tags`는 선택 사항으로 최대 20개·각 50자 문자열 배열, `origin`은 선택 사항으로 최대 1,000자 문자열입니다. 이 외 필드나 작성자 ID를 payload에 넣지 마세요.
+
+- 같은 `requestId`·같은 payload·같은 요청 주체로 재시도하면 기존 결과를 반환합니다. 내용이나 주체가 다른 재사용은 409입니다. 성공 응답이 유실돼도 새 ID를 만들지 말고 동일 요청을 재시도하세요.
+- Markdown의 줄바꿈을 LF로 통일하고 앞뒤 공백을 제거한 내용의 해시로 **지식 메모끼리** 중복을 제거합니다. 제목·태그·출처·작성 봇이 달라도 본문이 같으면 기존 raw와 ingest 작업을 반환하며 `duplicate:true`로 표시합니다. 최초 작성자와 메타데이터는 유지합니다. 새 requestId의 중복 제출은 감사 기록에 남지만 새 ingest 작업을 만들지는 않습니다.
+- 성공 응답은 원자료 ID·작업 ID·상태·중복 여부를 제공합니다. 원자료 본문은 `wiki.source --id SOURCE_ID`로 조회합니다. 중복 제출의 상태는 기존 ingest 작업의 현재 상태이며 완료된 자료를 다시 대기로 돌리지 않습니다.
+- 메모 본문·제목·태그·출처·요청 ID에서 비밀값으로 보이는 패턴을 발견하면 거부합니다. API 키/토큰/비밀번호 할당, 인증 헤더, 개인 키, 알려진 토큰 형식 등을 검사합니다. 오류는 사유만 반환하며 의심 값을 반사하지 않습니다. 거부된 요청은 raw·작업·감사 로그·재시도 테이블에 저장하지 않습니다.
+- 로컬 봇 키와 비슷한 64자리 16진수도 보수적으로 거부하므로 일반 해시값도 차단될 수 있습니다. 패턴 검사는 보조 장치입니다. 모든 비밀 형식을 탐지하지 못하며 오탐이 생길 수 있습니다. 제출 전에 민감값을 제거하고, 탐지를 우회하기 위해 값을 인코딩하지 마세요. 메모를 넣은 로컬 JSON 파일에는 원래 입력이 남으므로 파일 작성 전에도 확인하세요.
+- 새 제출의 감사 기록에는 봇 ID, 시각, requestId, 제목과 원자료 식별자가 남습니다. 동일 요청의 재시도는 감사 기록도 중복 생성하지 않습니다.
+
+**권한:** 등록된 봇은 원자료 추가만 가능합니다. 원자료 수정·삭제는 허용되지 않습니다. 일반 봇의 위키 페이지 변경·ingest·lint·publish 권한은 추가되지 않으며 기존 메인봇 전용 규칙을 유지합니다. 메인봇도 명시적인 사용자 삭제 요청 없이 위키 페이지를 삭제할 수 없습니다. 화면 사용자용 `wiki.request`의 권한과 흐름은 그대로이며 봇 호출은 403입니다.
+
+현재 앱은 로컬 공유 봇 키와 `X-Bot-Id`를 사용합니다. ID는 감사 주체이며 봇별로 분리된 인증 키를 검증하는 구조는 아닙니다. 이 기능은 인증 구조를 바꾸지 않습니다. 키 보유자 사이의 강한 신원 격리가 필요하면 별도 인증 설계가 필요합니다.
+
+| HTTP 코드 | 의미 |
+| --- | --- |
+| 200 | 추가 또는 동일 내용/요청 재사용 성공 |
+| 400 | 필수값·타입·허용 필드·크기 오류, 비밀 패턴 탐지 |
+| 401 | 잘못된 봇 인증 키 |
+| 403 | 미등록 봇 또는 사용자 호출, 허용되지 않은 변경·삭제·위키 유지보수 |
+| 409 | requestId를 다른 요청에 재사용 |
+| 413 | 기존 HTTP 전체 요청 제한(1 MiB) 초과; 본문 64 KiB 초과는 400 |
+
+### English
+
+A registered bot can append an immutable knowledge note to raw storage without first archiving a task. The requesting bot ID is recorded as author. A successful append queues an ingest job in `pending` (**Awaiting curation** in the UI); it does not publish a wiki page. The existing main-bot raw → ingest → lint → publish workflow remains unchanged. Notes appear in the raw archive with author, status, tags and origin.
+
+Use the JSON and CLI example above, replacing `bot-N` with a registered bot ID. Required fields are `requestId` (up to 150 characters), `title` (up to 300 characters), and nonblank Markdown `text` (at most **65,536 UTF-8 bytes**). Optional `tags` accepts up to 20 strings of up to 50 characters each; optional `origin` is a string of up to 1,000 characters. Unknown fields, including caller-supplied author fields, are rejected.
+
+An exact retry with the same requestId, payload and actor returns the previous result. Reusing that ID with different content or another actor returns 409. Retry the exact request if its response is lost.
+
+Content deduplication applies among knowledge notes using Markdown normalized to LF line endings and trimmed at both ends. Title, tags, origin and author do not affect this hash. Duplicate content returns the existing raw/job with `duplicate:true`; the first author and metadata remain unchanged. A new requestId creates an audit entry but not another ingest job. Its returned status reflects the existing job, including completed jobs. The compact response identifies the raw source, job, status and duplicate result; read Markdown using `wiki.source --id SOURCE_ID`.
+
+All submitted text fields are checked for secret-like patterns, including credential assignments, authentication headers, private keys and recognized token formats. Rejections report only a reason and do not persist the rejected input in raw, jobs, audit records or the retry table. Bare 64-character hexadecimal strings are conservatively rejected, including benign digests. Detection is heuristic: false positives and missed formats remain possible. Remove sensitive values before submission; do not encode secrets to bypass detection. Local payload files still contain the input you wrote.
+
+Accepted submissions are audited with bot ID, timestamp, requestId, title and source ID. Exact retries do not duplicate audit entries. Raw modification/deletion remains prohibited. Ordinary bots gain no page editing, ingestion, linting or publishing rights; existing main-bot maintenance rules and explicit user deletion requests still apply. The user-only `wiki.request` remains unchanged and returns 403 for bot calls.
+
+Authentication still uses a shared local bot key plus `X-Bot-Id`, not distinct verified credentials per bot. Bot IDs provide attribution within that trust model. This change does not introduce stronger isolation between key holders.
+
+Errors: **400** invalid/missing fields, excess field/body size or detected secret pattern; **401** invalid bot key; **403** unregistered bot, user caller or forbidden mutation/maintenance; **409** conflicting requestId reuse; **413** the existing 1 MiB total HTTP request limit. Text exceeding 64 KiB returns 400 within that transport limit. Successful creation or deduplication returns **200**.

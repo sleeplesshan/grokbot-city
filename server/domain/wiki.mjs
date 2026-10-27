@@ -3,6 +3,24 @@ const error=(message,status=400)=>{throw Object.assign(new Error(message),{statu
 const text=(value,max=100000)=>typeof value==='string'&&value.length<=max?value:error('Invalid wiki text');
 const required=(v,max=100000)=>text(v,max).trim()||error('Wiki text is required');
 const stamp=()=>new Date().toISOString();
+const secretPatterns=[
+ /(?:api[_ -]?key|access[_ -]?token|refresh[_ -]?token|token|password|passwd|secret|비밀번호|암호|토큰|비밀키|API\s*키)["']?\s*[:=]\s*["']?[^\s"',;}]+/i,
+ /\b(?:bearer|basic)\s+[A-Za-z0-9+/_=.-]{6,}/i,
+ /-----BEGIN (?:[A-Z]+ )?PRIVATE KEY-----/,
+ /\b(?:sk-(?:proj-|ant-)?[A-Za-z0-9_-]{16,}|gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|AIza[A-Za-z0-9_-]{30,}|AKIA[A-Z0-9]{16}|xox[baprs]-[A-Za-z0-9-]{12,})\b/,
+ /\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\b/,
+ /[a-z][a-z0-9+.-]*:\/\/[^\s/@]+:[^\s/@]+@/i,
+ /\b[a-f0-9]{64}\b/i,
+];
+export function validateWikiSourceAdd(s,p,actor){
+ if(actor?.kind!=='bot'||!s.bots.some(b=>b.id===actor.id))error('Registered bot required',403);
+ if(!p||typeof p!=='object'||Array.isArray(p)||Object.keys(p).some(k=>!['requestId','title','text','tags','origin'].includes(k)))error('Invalid source fields');
+ required(p.requestId,150);required(p.title,300);required(p.text,65536);
+ if(Buffer.byteLength(p.text,'utf8')>65536)error('Source text exceeds byte limit');
+ if(p.origin!==undefined)text(p.origin,1000);
+ if(p.tags!==undefined&&(!Array.isArray(p.tags)||p.tags.length>20||p.tags.some(tag=>typeof tag!=='string'||!tag.trim()||tag.length>50)))error('Invalid source tags');
+ for(const value of [p.requestId,p.title,p.text,p.origin,...(p.tags||[])])if(typeof value==='string'&&secretPatterns.some(pattern=>pattern.test(value)))error('Potential credential detected; remove sensitive values');
+}
 export function ensureWiki(s){return s.wiki ||= {sources:[],pages:[],jobs:[],log:[]};}
 function log(w,jobId,action,actor,note='',pages){w.log.unshift({id:randomUUID(),jobId,action,at:stamp(),actor,note,...(pages?{pages:structuredClone(pages)}:{})});}
 function createJob(s,fields){const w=ensureWiki(s),at=stamp();const job={id:randomUUID(),...fields,status:'pending',version:0,note:'',findings:[],attemptId:null,staged:[],createdAt:at,updatedAt:at,semanticReview:null};w.jobs.unshift(job);s.inbox.unshift({id:randomUUID(),kind:'wiki',targetId:job.id,version:0,message:'Maintain the persistent wiki.',recipient:'bot-0',createdAt:at,acknowledgedAt:null,source:null});log(w,job.id,'request','system',job.text||'');return job;}
@@ -35,6 +53,16 @@ function lint(w,staged){
 }
 export function wikiCommand(s,action,p,actor){
  const w=ensureWiki(s),at=stamp();
+ if(/^wiki\.source\.(?:edit|update|delete|remove|purge)$/.test(action))error('Raw sources are immutable',403);
+ if(action==='wiki.source.add'){
+  validateWikiSourceAdd(s,p,actor);
+  const markdown=p.text.replace(/\r\n?/g,'\n').trim(),hash=createHash('sha256').update(JSON.stringify({kind:'note',markdown})).digest('hex');
+  let source=w.sources.find(x=>x.kind==='note'&&x.hash===hash),duplicate=!!source;
+  if(!source){source={id:randomUUID(),kind:'note',title:p.title.trim(),markdown,hash,createdAt:at,botId:actor.id,tags:(p.tags||[]).map(tag=>tag.trim()),origin:p.origin||''};w.sources.unshift(source);createJob(s,{kind:'ingest',sourceId:source.id,text:`Ingest note: ${source.title}`});}
+  const job=w.jobs.find(j=>j.kind==='ingest'&&j.sourceId===source.id);
+  w.log.unshift({id:randomUUID(),jobId:job?.id,action:'wiki.source.add',at,actor:actor.id,requestId:p.requestId,title:p.title.trim(),sourceId:source.id,duplicate,note:duplicate?'Duplicate source retained':'Source accepted'});
+  return {id:source.id,jobId:job?.id,status:job?.status||'pending',duplicate};
+ }
  if(action==='wiki.request'){
   if(actor.kind!=='user')error('Only users request wiki changes',403);
   if(!['add','edit','delete'].includes(p.kind))error('Invalid wiki request kind');

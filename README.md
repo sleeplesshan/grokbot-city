@@ -16,6 +16,7 @@ The dashboard does not automatically connect to Grok or run an LLM. Your main bo
 - Monitoring by waiting / active / completed status, subtasks and routine run history.
 - Split task detail with a bot-authored workflow graph and live node progress.
 - Task library, recoverable trash, Markdown result reports.
+- Bot-authored knowledge notes via `wiki.source.add`, with immutable raw storage, deduplication and main-bot curation.
 - Independent raw sources, LLM-maintained wiki, structural lint, reviewed atomic publication and a linked knowledge map.
 - SSE updates without refreshing the page. Bots report on work boundaries, not timed model polling.
 
@@ -24,16 +25,22 @@ The dashboard does not automatically connect to Grok or run an LLM. Your main bo
 Requires **Node.js 24 or newer** and npm.
 
 ```sh
+git clone https://github.com/sleeplesshan/grokbot-city.git
+cd grokbot-city
 npm ci
 npm run build
 npm start
 ```
+
+If you downloaded a ZIP, extract it and open a terminal in that folder; skip the clone and cd lines above.
 
 Open **http://127.0.0.1:4318**. First launch creates `data/config.json`, a local bot credential, and `data/live.sqlite`. The workspace starts with placeholder bot slots and no sample tasks. There is no demo mode or simulation API in the running application.
 
 For frontend development, keep the API server running and use `npm run dev` in another terminal. Vite proxies `/api` to port4318.
 
 ## Connect your main bot
+
+Open **Operating guide** in the sidebar for a copyable startup prompt. Enter your installation computer and absolute project path. The complete bilingual guide is [here](docs/OPERATING_GUIDE.md).
 
 Give the bot these files:
 
@@ -50,7 +57,7 @@ node scripts/bot.mjs help
 
 The main bot can add profiles with `bot.create`; existing databases and bot IDs are preserved. See the [creation contract](docs/GROKBOT_PROTOCOL.md#botcreate). There is no fixed roster-size limit; each team task still allows up to five members besides its Boss.
 
-CLI writes use JSON files, expected versions and request tokens. Keep `data/bot.key` private. The dashboard does not install or execute external CLIs when preferences change.
+CLI writes use JSON files, expected versions and request tokens. Keep `data/bot.key` private. Store real profile images under `public/assets/local/` (Git-ignored) and use `/assets/local/...` avatar paths; rebuild to serve newly added images. The dashboard does not install or execute external CLIs when preferences change.
 
 ## Task lifecycle
 
@@ -130,6 +137,7 @@ Project source: [MIT](LICENSE). Bundled fonts and dependencies retain their own 
 - 대기중·진행중·완료 모니터링, 세부 작업과 루틴 회차 이력.
 - 업무 상세와 봇이 작성한 노드 플로우, 실시간 단계별 진행 상태.
 - 업무 도서관, 복원 가능한 휴지통, Markdown 결과서.
+- `wiki.source.add`로 봇 지식 메모 등록, 불변 원자료·중복 방지·메인봇 정리.
 - 독립 원자료, LLM 위키, 구조 검사와 검토 후 일괄 게시, 연결된 지식 지도.
 - 새로고침 없는 SSE 업데이트. 봇은 작업 시작·단계 전환·완료 시 보고하며 주기적인 모델 호출은 필요하지 않습니다.
 
@@ -138,16 +146,22 @@ Project source: [MIT](LICENSE). Bundled fonts and dependencies retain their own 
 **Node.js 24 이상**과 npm이 필요합니다.
 
 ```sh
+git clone https://github.com/sleeplesshan/grokbot-city.git
+cd grokbot-city
 npm ci
 npm run build
 npm start
 ```
+
+ZIP으로 내려받았다면 압축을 풀고 해당 폴더에서 터미널을 여세요. 위 clone과 cd 명령은 생략합니다.
 
 **http://127.0.0.1:4318**에 접속합니다. 최초 실행 시 `data/config.json`, 로컬 봇 인증 키, `data/live.sqlite`가 생성됩니다. 초기 상태는 빈 봇 슬롯이며 샘플 업무가 없습니다. 운영 앱에는 시연 모드나 시뮬레이션 API가 없습니다.
 
 프런트엔드 개발 시 API 서버를 켜 둔 채 다른 터미널에서 `npm run dev`를 실행합니다. Vite가 `/api` 요청을 4318 포트로 전달합니다.
 
 ### 메인봇 연결
+
+왼쪽 **운영 가이드**에서 설치 PC와 프로젝트 절대경로를 입력하고 메인봇 시작 프롬프트를 복사하세요. [전체 운영 가이드](docs/OPERATING_GUIDE.md)에도 같은 프롬프트와 절차가 있습니다.
 
 메인봇에게 아래 문서를 전달합니다.
 
@@ -164,7 +178,7 @@ node scripts/bot.mjs help
 
 메인봇은 `bot.create`로 봇을 추가할 수 있습니다. 기존 DB와 봇 ID를 보존하며, 정확한 입력은 [추가 명령 규약](docs/GROKBOT_PROTOCOL.md#botcreate)을 따릅니다. 등록 봇 수에 고정 제한은 없고, 개별 팀 업무의 팀원은 Boss 외 최대 5명입니다.
 
-CLI 변경 요청은 JSON 파일, 예상 버전, 요청 토큰을 사용합니다. `data/bot.key`는 비공개로 유지합니다. CLI 활용 설정을 바꾸어도 대시보드가 외부 CLI를 설치하거나 실행하지는 않습니다.
+CLI 변경 요청은 JSON 파일, 예상 버전, 요청 토큰을 사용합니다. `data/bot.key`는 비공개로 유지합니다. 실제 프로필 이미지는 Git에서 제외된 `public/assets/local/`에 넣고 `/assets/local/...` 경로를 사용하세요. 새 이미지는 다시 빌드하면 서비스에 반영됩니다. CLI 활용 설정을 바꾸어도 대시보드가 외부 CLI를 설치하거나 실행하지는 않습니다.
 
 ### 업무 흐름
 

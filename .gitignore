@@ -16,3 +16,8 @@ docs/latest-*
 *.db
 *.pem
 *.pfx
+
+# Local bot profile images (keep the bundled template sprite)
+/public/assets/bot-*.png
+!/public/assets/bot-roster.png
+/public/assets/local/

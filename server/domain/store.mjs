@@ -1,6 +1,6 @@
 import { DatabaseSync } from "node:sqlite";
 import { randomUUID } from "node:crypto";
-import {ensureWiki,captureWikiSource,wikiCommand} from './wiki.mjs';
+import {ensureWiki,captureWikiSource,wikiCommand,validateWikiSourceAdd} from './wiki.mjs';
 
 export class AppError extends Error {
   constructor(message, status = 400) {
@@ -152,6 +152,8 @@ export function createStore(path) {
   function command(action, p = {}, actor = { kind: "user", id: "owner" }) {
     db.exec("BEGIN IMMEDIATE");
     try {
+      if(action==='wiki.source.add')validateWikiSourceAdd(read(),p,actor);
+      if(/^wiki\.source\.(?:edit|update|delete|remove|purge)$/.test(action))fail('Raw sources are immutable',403);
       const fingerprint = JSON.stringify({ action, p, actor });
       if (p.requestId) {
         const prev = db

@@ -40,6 +40,7 @@ import {
 } from "lucide-react";
 import type { Bot, Brief, Task, Run, Subtask, State, Status } from "../types";
 import {FlowPanel} from "../features/tasks/FlowPanel";
+import OperatingGuide from "../features/guide/OperatingGuide";
 import WikiLibrary from '../features/wiki/WikiLibrary';
 
 type Lang = "ko" | "en";
@@ -836,22 +837,11 @@ export default function App() {
               setModal(
                 <Dialog
                   title={t("guide")}
+                  wide
                   onClose={close}
                   closeLabel={t("close")}
                 >
-                  <p>
-                    {lang === "ko"
-                      ? "메인봇에게 아래 문서를 읽고 실제 봇 이름·사진·지침을 등록하고, 현재 수행 중인 업무와 실제 진척을 모니터링에 이관한 뒤 운영을 시작하라고 전달하세요."
-                      : "Ask the main bot to read these guides, migrate real bot names, photos and instructions, and import ongoing work with its actual progress into Monitoring."}
-                  </p>
-                  <code>docs/GROKBOT_CONTEXT.md</code><br/><code>docs/GROKBOT_MIGRATION.md</code><br/><code>docs/GROKBOT_WIKI.md</code>
-                  <p>
-                    {lang === "ko"
-                      ? "지침을 반영하거나 지시서의 진행을 켜면 봇이 변경함을 확인합니다. 접수된 업무는 모니터링에서 확인합니다."
-                      : "Publish instructions or enable Start on a brief. The bot reviews its inbox; accepted tasks move to Monitoring."}
-                  </p>
-                  <code>node scripts/bot.mjs inbox</code>
-                  <p>{t("routineHint")}</p>
+                  <OperatingGuide lang={lang}/>
                 </Dialog>,
               )
             }
@@ -896,14 +886,7 @@ export default function App() {
             <Settings2 size={17} />
             {t("settings")}
           </button>
-          <div className="operator">
-            <span>Y</span>
-            <div>
-              <strong>{t("owner")}</strong>
-              <small>Personal workspace</small>
-            </div>
-            <ShieldCheck size={16} />
-          </div>
+
         </div>
       </aside>
       {mobile && (
