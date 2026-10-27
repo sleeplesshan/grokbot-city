@@ -1,0 +1,18 @@
+node_modules/
+dist/
+data/
+logs/
+*.local
+
+# Local agent memory and captured private workspace screens
+.dual-brain/
+docs/latest-*
+.env
+.env.*
+!.env.example
+*.key
+*.sqlite
+*.sqlite-*
+*.db
+*.pem
+*.pfx
