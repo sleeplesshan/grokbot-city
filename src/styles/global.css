@@ -1714,6 +1714,8 @@ footer i {
 }
 @media (max-width: 850px) {
   .sidebar {
+    /* Keep the mobile drawer above the sticky tabs (45), below dialogs (60+). */
+    z-index: 55;
     width: 220px;
     transform: translateX(-100%);
     transition: transform 0.25s ease;
@@ -1726,7 +1728,7 @@ footer i {
     position: fixed;
     inset: 0;
     background: #0008;
-    z-index: 25;
+    z-index: 50;
   }
   .shell {
     margin-left: 0;
