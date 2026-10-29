@@ -143,7 +143,7 @@ const server = http.createServer(async (req, res) => {
         }
         if(url.pathname==='/api/sync') {
           const visible=s.tasks.filter(t=>t.location!=='trash'&&relevant(t)),ids=new Set(visible.map(t=>t.id));
-          const inbox=s.inbox.filter(e=>!e.acknowledgedAt&&!e.cancelledAt&&(e.kind==='wiki'?(actor.kind==='user'||actor.id==='bot-0'):e.kind==='instruction'?(actor.kind==='user'||actor.id==='bot-0'||e.recipient===actor.id):ids.has(e.targetId)&&(e.kind!=='retrospective'||actor.kind==='user'||actor.id==='bot-0')));
+          const inbox=s.inbox.filter(e=>!e.acknowledgedAt&&!e.cancelledAt&&((e.kind==='wiki'||e.kind==='monitor')?(actor.kind==='user'||actor.id==='bot-0'):e.kind==='instruction'?(actor.kind==='user'||actor.id==='bot-0'||e.recipient===actor.id):ids.has(e.targetId)&&(e.kind!=='retrospective'||actor.kind==='user'||actor.id==='bot-0')));
           return json(res,200,{revision:s.revision,workspace:mode,inbox,tasks:visible.map(t=>({id:t.id,title:(t.published||t.draft).title,version:t.version,stage:t.stage,location:t.location,ready:t.ready,dispatchId:t.dispatchId,publishedVersion:t.publishedVersion,acceptedVersion:t.acceptedVersion,run:t.runs.length?{id:t.runs.at(-1).id,status:t.runs.at(-1).status,progress:t.runs.at(-1).progress}:null,retrospectiveRequestId:t.retrospectiveRequestId,retrospectiveReady:!!t.retrospective,flowRequestId:t.flowRequestId,flowVersion:t.flowPlan?.version??null}))});
         }
         const task=s.tasks.find(t=>t.id===url.searchParams.get('id'));

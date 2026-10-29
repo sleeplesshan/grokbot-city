@@ -203,6 +203,26 @@ export function createStore(path) {
       let result;
       if(action.startsWith('wiki.')) result=wikiCommand(s,action,p,actor);
       else switch (action) {
+        case 'monitor.request': {
+          userOnly();
+          if(!str(p.requestId || '',150).trim()) fail('requestId required',400);
+          const pending=s.inbox.find(e=>e.kind==='monitor'&&!e.acknowledgedAt&&!e.cancelledAt);
+          if(pending) { result=pending;break; }
+          event('monitor','bot-0',1,'Hey Grokbot, please update monitoring!');
+          result=s.inbox[0];break;
+        }
+        case 'monitor.ack': {
+          if(actor.kind!=='bot'||actor.id!=='bot-0') fail('Only main bot can acknowledge monitoring requests',403);
+          bot(actor.id);
+          if(!str(p.requestId || '',150).trim()) fail('requestId required',400);
+          const request=s.inbox.find(e=>e.kind==='monitor'&&e.id===p.id);
+          if(!request) fail('Monitoring request not found',404);
+          if(request.acknowledgedAt||request.cancelledAt) fail('Monitoring request already closed',409);
+          const summary=str(p.summary || '',2000).trim();
+          if(!summary) fail('Update summary required',400);
+          request.acknowledgedAt=at;request.source=actor.kind;request.summary=summary;
+          result=request;break;
+        }
         case 'flow.submit': {
           const t=task(p.id);check(t);
           if(actor.kind!=='bot'||![t.published?.boss,'bot-0'].includes(actor.id)) fail('Only main bot or Boss can submit flow',403);

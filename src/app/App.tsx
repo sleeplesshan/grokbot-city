@@ -985,6 +985,8 @@ export default function App() {
                 )}
               </p>
             </div>
+            <div className="page-heading-actions">
+            {tab === "monitor" && <button className="secondary" disabled={!state || busy || pending.some(e=>e.kind==='monitor')} title={lang==='ko'?'메인봇 변경함에 요청을 남깁니다. 봇을 자동 실행하지는 않습니다.':'Queue a request for the main bot. This does not automatically launch the bot.'} onClick={()=>act(()=>command('monitor.request',{}))}><RefreshCw size={16}/>{pending.some(e=>e.kind==='monitor') ? (lang==='ko'?'업데이트 확인 대기':'Update pending') : (lang==='ko'?'업데이트 요청':'Request update')}</button>}
             <button
               className="primary"
               disabled={!state}
@@ -993,6 +995,7 @@ export default function App() {
               <Plus size={17} />
               {t("newTask")}
             </button>
+            </div>
           </div>
           {tab === "trash" && <button className="secondary empty-trash" disabled={busy || !listedTasks.length} onClick={emptyTrash}><Trash2 size={15}/>{t("emptyTrash")}</button>}
           {!state ? (
@@ -1361,6 +1364,8 @@ export default function App() {
                   if (e.kind === "instruction") {
                     setSelected(e.targetId);
                     setTab("status");
+                  } else if(e.kind==='monitor') {
+                    setTaskOpen(null);setTab('monitor');
                   } else if(e.kind==='wiki') {
                     setTaskOpen(null);setTab('library');setLibraryView('wiki');
                   } else {
@@ -1372,9 +1377,9 @@ export default function App() {
               >
                 <Sparkles size={17} />
                 <div>
-                  <strong>{e.message}</strong>
+                  <strong>{e.kind==='monitor' ? (lang==='ko'?'메인봇에게 모니터링 업데이트 요청':'Monitoring update requested') : e.message}</strong>
                   <p>
-                    {e.kind==='wiki' ? (lang==='ko'?'업무 위키':'Task wiki') : e.kind === "instruction"
+                    {e.kind==='monitor' ? (lang==='ko'?'전체 업무 상태 확인':'Review all task statuses') : e.kind==='wiki' ? (lang==='ko'?'업무 위키':'Task wiki') : e.kind === "instruction"
                       ? botName(e.targetId)
                       : tasks.find((x) => x.id === e.targetId)?.published
                           ?.title}{" "}

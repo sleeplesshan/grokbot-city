@@ -361,3 +361,12 @@ Accepted submissions are audited with bot ID, timestamp, requestId, title and so
 Authentication still uses a shared local bot key plus `X-Bot-Id`, not distinct verified credentials per bot. Bot IDs provide attribution within that trust model. This change does not introduce stronger isolation between key holders.
 
 Errors: **400** invalid/missing fields, excess field/body size or detected secret pattern; **401** invalid bot key; **403** unregistered bot, user caller or forbidden mutation/maintenance; **409** conflicting requestId reuse; **413** the existing 1 MiB total HTTP request limit. Text exceeding 64 KiB returns 400 within that transport limit. Successful creation or deduplication returns **200**.
+
+
+## 수동 업데이트 요청 / Manual update requests
+
+모니터링의 업데이트 요청 버튼은 메인봇 변경함에 `kind:monitor`를 남깁니다. 실제 상태 확인과 저장을 마친 후 `monitor.ack`로 처리하세요. 실패 시 대기로 유지합니다. 봇 자동 실행이나 새 업무 승인이 아닙니다.
+
+The monitoring button queues a `kind:monitor` inbox request. Reconcile actual task states and verify writes before `monitor.ack`; leave blocked requests pending. This does not launch bots or authorize new work.
+
+[처리 절차·명령 / Workflow and commands](MONITORING_UPDATES.md)

@@ -158,3 +158,12 @@ If changes remain pending, ask the main bot to run sync; the app does not wake i
 - [Reports / 결과서](RETROSPECTIVE_TEMPLATE.md)
 - [Installation / 설치](../README.md)
 - [Server operation, backup and recovery / 서버 운영·백업·복구](MAINTENANCE.md)
+
+
+## 수동 업데이트 요청 / Manual update requests
+
+모니터링의 업데이트 요청 버튼은 메인봇 변경함에 `kind:monitor`를 남깁니다. 실제 상태 확인과 저장을 마친 후 `monitor.ack`로 처리하세요. 실패 시 대기로 유지합니다. 봇 자동 실행이나 새 업무 승인이 아닙니다.
+
+The monitoring button queues a `kind:monitor` inbox request. Reconcile actual task states and verify writes before `monitor.ack`; leave blocked requests pending. This does not launch bots or authorize new work.
+
+[처리 절차·명령 / Workflow and commands](MONITORING_UPDATES.md)

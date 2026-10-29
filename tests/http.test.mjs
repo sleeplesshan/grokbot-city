@@ -149,6 +149,20 @@ test("isolated HTTP security and workspace boundaries", async (t) => {
     assert.deepEqual(live.tasks, []);
     assert.equal(existsSync(join(dir,'data/demo.sqlite')),false);
   });
+  await t.test('monitor requests reach main sync only and acknowledge through the API', async()=>{
+    const response=await post('/api/command',sessionHeaders,{action:'monitor.request',payload:{requestId:'monitor-http'}});
+    assert.equal(response.status,200);
+    const event=(await response.json()).result;
+    const token=readFileSync(join(dir,'data/bot.key'),'utf8').trim();
+    const headers={Authorization:`Bearer ${token}`,'X-Bot-Id':'bot-0'};
+    const main=await (await fetch(base+'/api/sync',{headers})).json();
+    assert.ok(main.inbox.some(e=>e.id===event.id));
+    const member=await (await fetch(base+'/api/sync',{headers:{...headers,'X-Bot-Id':'bot-1'}})).json();
+    assert.ok(!member.inbox.some(e=>e.id===event.id));
+    assert.equal((await post('/api/command',headers,{action:'monitor.ack',payload:{id:event.id,requestId:'monitor-http-ack',summary:'Reviewed; no pending tasks.'}})).status,200);
+    const after=await (await fetch(base+'/api/sync',{headers})).json();
+    assert.ok(!after.inbox.some(e=>e.id===event.id));
+  });
   await t.test(
     "authenticated CLI writes get bot attribution without a browser session",
     async () => {

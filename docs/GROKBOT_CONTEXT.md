@@ -118,3 +118,12 @@
 처음 연결할 때는 [운영 가이드](OPERATING_GUIDE.md)의 복사 프롬프트와 설치 위치를 확인하세요. 앱은 봇을 자동 실행하지 않습니다.
 
 등록된 모든 봇은 `wiki.source.add`로 지식 메모를 불변 raw에 추가할 수 있습니다. 메인봇의 정리 대기 작업이 생성되며, 본문은 UTF-8 64 KiB 이하입니다. 메모 추가는 위키 게시가 아닙니다. 정확한 payload·중복 처리·비밀 패턴·오류 코드는 [위키 규약](GROKBOT_WIKI.md)을 따르세요. 기존 사용자 `wiki.request`와 메인봇 전용 ingest/lint/publish 권한은 유지합니다.
+
+
+## 수동 업데이트 요청 / Manual update requests
+
+모니터링의 업데이트 요청 버튼은 메인봇 변경함에 `kind:monitor`를 남깁니다. 실제 상태 확인과 저장을 마친 후 `monitor.ack`로 처리하세요. 실패 시 대기로 유지합니다. 봇 자동 실행이나 새 업무 승인이 아닙니다.
+
+The monitoring button queues a `kind:monitor` inbox request. Reconcile actual task states and verify writes before `monitor.ack`; leave blocked requests pending. This does not launch bots or authorize new work.
+
+[처리 절차·명령 / Workflow and commands](MONITORING_UPDATES.md)

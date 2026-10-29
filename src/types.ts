@@ -80,7 +80,8 @@ export type Event = {
   cancelledAt?: string;
   dispatchId?: string;
   id: string;
-  kind: "instruction" | "task" | "retrospective" | "routine" | "flow" | "wiki";
+  kind: "instruction" | "task" | "retrospective" | "routine" | "flow" | "wiki" | "monitor";
+  summary?: string;
   targetId: string;
   version: number;
   message: string;
